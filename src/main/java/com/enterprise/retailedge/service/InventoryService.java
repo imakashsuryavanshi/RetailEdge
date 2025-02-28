@@ -1,0 +1,60 @@
+package com.enterprise.retailedge.service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.enterprise.retailedge.model.Inventory;
+import com.enterprise.retailedge.repository.InventoryRepository;
+
+@Service
+public class InventoryService {
+
+	@Autowired
+	private InventoryRepository inventoryRepository;
+	
+	public Inventory addProduct(Inventory product) {
+		return inventoryRepository.save(product);
+	}
+	
+	public List<Inventory> getAllProducts(){
+		return inventoryRepository.findAll();
+	}
+	
+	public Optional<Inventory> getProductById(UUID productId) {
+		return inventoryRepository.findById(productId);
+	}
+	
+	public List<Inventory> getProductsByCategory(String category){
+		return inventoryRepository.findByCategory(category);
+	}
+	
+	public Inventory updateProduct(UUID productId, Inventory updatedProduct) {
+        return inventoryRepository.findById(productId).map(product -> {
+            product.setProductName(updatedProduct.getProductName());
+            product.setQuantityInStock(updatedProduct.getQuantityInStock());
+            product.setCategory(updatedProduct.getCategory());
+            product.setSupplier(updatedProduct.getSupplier());
+            return inventoryRepository.save(product);
+        }).orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+    }
+
+    public void deleteProduct(UUID productId) {
+        inventoryRepository.deleteById(productId);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
