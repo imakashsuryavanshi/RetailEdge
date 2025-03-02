@@ -38,6 +38,8 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 					.requestMatchers("/api/auth/**").permitAll()
 					.requestMatchers("/api/users/**").hasAnyRole("ADMIN","MANAGER")
+					.requestMatchers("/api/sales/**").hasAnyRole("ADMIN","MANAGER","EMPLOYEE")
+					.requestMatchers("/api/inventory/**").hasAnyRole("ADMIN","MANAGER")
 					.anyRequest().authenticated()
 					)
 					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
