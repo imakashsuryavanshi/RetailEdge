@@ -9,6 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.enterprise.retailedge.dto.UserDTO;
+import com.enterprise.retailedge.dto.UserResponseDTO;
 import com.enterprise.retailedge.model.User;
 import com.enterprise.retailedge.repository.UserRepository;
 
@@ -24,20 +26,29 @@ public class UserService{
 	}
 	
 	//Create a new User
-	public User createUser(User user) {
+	public UserResponseDTO createUser(UserDTO userDTO) {
+		User user = new User();
+	    user.setUsername(userDTO.getUsername());
+	    user.setPassword(userDTO.getPassword());
+	    user.setName(userDTO.getName());
+	    user.setEmail(userDTO.getEmail());
+	    user.setActive(userDTO.isActive());
+	    
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserRole = authentication.getAuthorities().iterator().next().getAuthority();
 		
 		if(user.getUsername() == "SUPERADMIN") {
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			return userRepository.save(user);
+			User savedUser = userRepository.save(user);
+			return mapToUserResponseDTO(savedUser);
 		}
 		
 		// Admin can create Managers and Employees
         if (currentUserRole.equals("ROLE_ADMIN")) {
             if (user.getRole() == User.Role.MANAGER || user.getRole() == User.Role.EMPLOYEE) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
-                return userRepository.save(user);
+                User savedUser = userRepository.save(user);
+    			return mapToUserResponseDTO(savedUser);
             } else {
                 throw new RuntimeException("Admin can only create Managers and Employees.");
             }
@@ -46,7 +57,8 @@ public class UserService{
         else if (currentUserRole.equals("ROLE_MANAGER")) {
             if (user.getRole() == User.Role.EMPLOYEE) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
-                return userRepository.save(user);
+                User savedUser = userRepository.save(user);
+    			return mapToUserResponseDTO(savedUser);
             } else {
                 throw new RuntimeException("Manager can only create Employees.");
             }
@@ -79,18 +91,26 @@ public class UserService{
 	}
 	
 	//Update a user
-	public User updateUser(UUID userId, User updatedUser) {
+	public UserResponseDTO updateUser(UUID userId, UserDTO userDTO) {
 		return userRepository.findById(userId).map(user -> {
-			user.setUsername(updatedUser.getUsername());
-			user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-            user.setRole(updatedUser.getRole());
-            user.setName(updatedUser.getName());
-            user.setEmail(updatedUser.getEmail());
-            user.setActive(updatedUser.isActive());
-            return userRepository.save(user);
+	        user.setUsername(userDTO.getUsername());
+	        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+	        user.setName(userDTO.getName());
+	        user.setEmail(userDTO.getEmail());
+	        user.setActive(userDTO.isActive());
+	        User updatedUser = userRepository.save(user);
+	        return mapToUserResponseDTO(updatedUser);
 		}).orElseThrow(() -> new RuntimeException("User not found with Id: " + userId));
 	}
 
-	
+	private UserResponseDTO mapToUserResponseDTO(User user) {
+	    UserResponseDTO userResponseDTO = new UserResponseDTO();
+	    userResponseDTO.setUserId(user.getUserId());
+	    userResponseDTO.setUsername(user.getUsername());
+	    userResponseDTO.setName(user.getName());
+	    userResponseDTO.setEmail(user.getEmail());
+	    userResponseDTO.setActive(user.isActive());
+	    return userResponseDTO;
+	}
 	
 }

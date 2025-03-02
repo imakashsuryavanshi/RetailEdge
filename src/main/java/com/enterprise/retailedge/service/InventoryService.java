@@ -18,12 +18,22 @@ public class InventoryService {
 	private InventoryRepository inventoryRepository;
 	
 	public Inventory addProduct(InventoryDTO inventoryDTO) {
-		Inventory product = new Inventory();
+	    Inventory product = new Inventory();
 	    product.setProductName(inventoryDTO.getProductName());
 	    product.setQuantityInStock(inventoryDTO.getQuantityInStock());
 	    product.setCategory(inventoryDTO.getCategory());
 	    product.setSupplier(inventoryDTO.getSupplier());
 	    return inventoryRepository.save(product);
+	}
+
+	public Inventory updateProduct(UUID productId, InventoryDTO inventoryDTO) {
+	    return inventoryRepository.findById(productId).map(product -> {
+	        product.setProductName(inventoryDTO.getProductName());
+	        product.setQuantityInStock(inventoryDTO.getQuantityInStock());
+	        product.setCategory(inventoryDTO.getCategory());
+	        product.setSupplier(inventoryDTO.getSupplier());
+	        return inventoryRepository.save(product);
+	    }).orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
 	}
 	
 	public List<Inventory> getAllProducts(){
@@ -38,16 +48,6 @@ public class InventoryService {
 		return inventoryRepository.findByCategory(category);
 	}
 	
-	public Inventory updateProduct(UUID productId, Inventory updatedProduct) {
-        return inventoryRepository.findById(productId).map(product -> {
-            product.setProductName(updatedProduct.getProductName());
-            product.setQuantityInStock(updatedProduct.getQuantityInStock());
-            product.setCategory(updatedProduct.getCategory());
-            product.setSupplier(updatedProduct.getSupplier());
-            return inventoryRepository.save(product);
-        }).orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
-    }
-
     public void deleteProduct(UUID productId) {
         inventoryRepository.deleteById(productId);
     }

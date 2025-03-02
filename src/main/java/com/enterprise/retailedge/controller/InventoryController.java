@@ -30,10 +30,11 @@ public class InventoryController {
 	private InventoryService inventoryService;
 	
 	@PostMapping
-    public ResponseEntity<Inventory> addProduct(@Valid @RequestBody InventoryDTO inventoryDTO) {
-        Inventory addedProduct = inventoryService.addProduct(inventoryDTO);
-        return ResponseEntity.ok(addedProduct);
-    }
+	public ResponseEntity<Inventory> addProduct(@Valid @RequestBody InventoryDTO inventoryDTO) {
+	    Inventory product = inventoryService.addProduct(inventoryDTO);
+	    return ResponseEntity.ok(product);
+	}
+
 
     @GetMapping
     public ResponseEntity<List<Inventory>> getAllProducts() {
@@ -58,8 +59,8 @@ public class InventoryController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<Inventory> updateProduct(@PathVariable UUID productId, @RequestBody Inventory updatedProduct) {
-        Inventory product = inventoryService.updateProduct(productId, updatedProduct);
+    public ResponseEntity<Inventory> updateProduct(@PathVariable UUID productId, @Valid @RequestBody InventoryDTO inventoryDTO) {
+        Inventory product = inventoryService.updateProduct(productId, inventoryDTO);
         return ResponseEntity.ok(product);
     }
 

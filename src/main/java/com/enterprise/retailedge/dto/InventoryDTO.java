@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class InventoryDTO {
+	
     @NotBlank(message = "Product name is required")
     private String productName;
 

@@ -36,6 +36,12 @@ public class SalesController {
 	    return ResponseEntity.ok(sale);
 	}
 
+	@PutMapping("/{saleId}")
+	public ResponseEntity<Sales> updateSale(@PathVariable UUID saleId, @Valid @RequestBody SalesDTO salesDTO) {
+	    Sales sale = salesService.updateSale(saleId, salesDTO);
+	    return ResponseEntity.ok(sale);
+	}
+
     @GetMapping
     public ResponseEntity<List<Sales>> getAllSales() {
         List<Sales> sales = salesService.getAllSales();
@@ -54,12 +60,6 @@ public class SalesController {
             @RequestParam LocalDateTime endDate) {
         List<Sales> sales = salesService.getSalesByDateRange(startDate, endDate);
         return ResponseEntity.ok(sales);
-    }
-    
-    @PutMapping("/{saleId}")
-    public ResponseEntity<Sales> updateSale(@PathVariable UUID saleId, @RequestBody Sales updatedSale) {
-        Sales sale = salesService.updateSale(saleId, updatedSale);
-        return ResponseEntity.ok(sale);
     }
 
     @DeleteMapping("/{saleId}")

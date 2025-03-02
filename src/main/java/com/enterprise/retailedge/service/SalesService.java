@@ -50,6 +50,31 @@ public class SalesService {
 	    sale.setSaleDate(salesDTO.getSaleDate());
 	    return salesRepository.save(sale);
 	}
+
+	@Transactional
+	public Sales updateSale(UUID saleId, SalesDTO salesDTO) {
+	    return salesRepository.findById(saleId).map(existingSale -> {
+	        Optional<Inventory> productOpt = inventoryRepository.findById(existingSale.getProductId());
+	        if (productOpt.isEmpty()) {
+	            throw new RuntimeException("Product not found in inventory.");
+	        }
+	        Inventory product = productOpt.get();
+
+	        int quantityDifference = salesDTO.getQuantity() - existingSale.getQuantity();
+	        if (quantityDifference > 0 && product.getQuantityInStock() < quantityDifference) {
+	            throw new RuntimeException("Not enough stock available for update.");
+	        }
+
+	        product.setQuantityInStock(product.getQuantityInStock() - quantityDifference);
+	        inventoryRepository.save(product);
+
+	        existingSale.setQuantity(salesDTO.getQuantity());
+	        existingSale.setPrice(salesDTO.getPrice());
+	        existingSale.setCustomerName(salesDTO.getCustomerName());
+	        existingSale.setSaleDate(salesDTO.getSaleDate());
+	        return salesRepository.save(existingSale);
+	    }).orElseThrow(() -> new RuntimeException("Sale not found with ID: " + saleId));
+	}
 	
 	public List<Sales> getAllSales(){
 		return salesRepository.findAll();
@@ -63,31 +88,6 @@ public class SalesService {
 		return salesRepository.findBySaleDateBetween(startDate, endDate);
 	}
 	
-	@Transactional
-    public Sales updateSale(UUID saleId, Sales updatedSale) {
-        return salesRepository.findById(saleId).map(existingSale -> {
-            Optional<Inventory> productOpt = inventoryRepository.findById(existingSale.getProductId());
-            if (productOpt.isEmpty()) {
-                throw new RuntimeException("Product not found in inventory.");
-            }
-            Inventory product = productOpt.get();
-            
-            int quantityDifference = updatedSale.getQuantity() - existingSale.getQuantity();
-            if (quantityDifference > 0 && product.getQuantityInStock() < quantityDifference) {
-                throw new RuntimeException("Not enough stock available for update.");
-            }
-            
-            product.setQuantityInStock(product.getQuantityInStock() - quantityDifference);
-            inventoryRepository.save(product);
-            
-            existingSale.setQuantity(updatedSale.getQuantity());
-            existingSale.setPrice(updatedSale.getPrice());
-//            existingSale.setTotalAmount(updatedSale.getPrice() * updatedSale.getQuantity());
-            existingSale.setCustomerName(updatedSale.getCustomerName());
-            existingSale.setSaleDate(updatedSale.getSaleDate());
-            return salesRepository.save(existingSale);
-        }).orElseThrow(() -> new RuntimeException("Sale not found with ID: " + saleId));
-    }
 	
 	@Transactional
     public void deleteSale(UUID saleId) {

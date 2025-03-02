@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.enterprise.retailedge.dto.UserDTO;
+import com.enterprise.retailedge.dto.UserResponseDTO;
 import com.enterprise.retailedge.model.User;
 import com.enterprise.retailedge.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
@@ -25,11 +29,16 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	//Create a new user
 	@PostMapping
-	public ResponseEntity<User> createUser(@RequestBody User user){
-		User savedUser = userService.createUser(user);
-		return ResponseEntity.ok(savedUser);
+	public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
+	    UserResponseDTO savedUser = userService.createUser(userDTO);
+	    return ResponseEntity.ok(savedUser);
+	}
+
+	@PutMapping("/{userId}")
+	public ResponseEntity<UserResponseDTO> updateUser(@PathVariable UUID userId, @Valid @RequestBody UserDTO userDTO) {
+	    UserResponseDTO updatedUser = userService.updateUser(userId, userDTO);
+	    return ResponseEntity.ok(updatedUser);
 	}
 	
 	//Get all Users
@@ -45,17 +54,6 @@ public class UserController {
 		Optional<User> user = userService.getUserById(userId);
 		return user.map(ResponseEntity :: ok)
 				.orElseGet(() -> ResponseEntity.notFound().build());
-	}
-	
-	//Update a user
-	@PutMapping("/{userId}")
-	public ResponseEntity<User> updateUser(@PathVariable UUID userId, @RequestBody User updatedUser){
-		try{
-			User updated = userService.updateUser(userId, updatedUser);
-			return ResponseEntity.ok(updated);
-		}catch(RuntimeException e) {
-			return ResponseEntity.notFound().build();
-		}
 	}
 	
 	 // Delete a user
