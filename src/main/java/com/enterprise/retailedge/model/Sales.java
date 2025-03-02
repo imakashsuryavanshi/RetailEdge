@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 @Entity
@@ -21,20 +23,24 @@ public class Sales {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID salesId;
 
+	@NotBlank(message = "Product Id is required")
 	@Column(nullable = false)
 	private UUID productId; //Reference to the product sold
 	
-	@Column(nullable = false)
-	private int quantity; //Quantity of the product sold
-	
-	@Column(nullable = false)
-	private double price; //Price per unit
-	
-	@Column(nullable = false)
-	private double totalAmount; //Total amount (Price * Quantity)
-	
-	@Column(nullable = false)
-	private String customerName;
+	@PositiveOrZero(message = "Quantity must be a positive number or zero")
+    @Column(nullable = false)
+    private int quantity;
+
+    @PositiveOrZero(message = "Price must be a positive number or zero")
+    @Column(nullable = false)
+    private double price;
+
+    @Column(nullable = false)
+    private double totalAmount;
+
+    @NotBlank(message = "Customer name is required")
+    @Column(nullable = false)
+    private String customerName;
 	
 	@Column(nullable = false)
 	private LocalDateTime saleDate; //Date & Time of sale

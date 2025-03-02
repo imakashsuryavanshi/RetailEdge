@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.enterprise.retailedge.dto.SalesDTO;
+import com.enterprise.retailedge.exception.InsufficientStockException;
+import com.enterprise.retailedge.exception.ProductNotFoundException;
 import com.enterprise.retailedge.model.Inventory;
 import com.enterprise.retailedge.model.Sales;
 import com.enterprise.retailedge.repository.InventoryRepository;
@@ -24,26 +27,28 @@ public class SalesService {
 	private InventoryRepository inventoryRepository;
 	
 	@Transactional
-	public Sales createSale(Sales sale) {
-		Optional<Inventory> productOpt = inventoryRepository.findById(sale.getProductId());
-		
-		if(productOpt.isEmpty()) {
-			throw new RuntimeException("Product not found in inventory.");
-		}
-		
-		Inventory product = productOpt.get();
-		
-		// Check if sufficient quantity is available
-		if(product.getQuantityInStock() < sale.getQuantity()) {
-			throw new RuntimeException("Insufficient stock for product: " + product.getProductName()
-							+ "Available stock: " + product.getQuantityInStock());
-		}
-		
-		 // Reduce stock
-		product.setQuantityInStock(product.getQuantityInStock() - sale.getQuantity());
-        inventoryRepository.save(product);
-		
-		return salesRepository.save(sale);
+	public Sales createSale(SalesDTO salesDTO) {
+	    Optional<Inventory> productOpt = inventoryRepository.findById(salesDTO.getProductId());
+	    if (productOpt.isEmpty()) {
+	        throw new ProductNotFoundException("Product not found in inventory.");
+	    }
+
+	    Inventory product = productOpt.get();
+	    if (product.getQuantityInStock() < salesDTO.getQuantity()) {
+	        throw new InsufficientStockException("Insufficient stock for product: " + product.getProductName()
+	                + ". Available stock: " + product.getQuantityInStock());
+	    }
+
+	    product.setQuantityInStock(product.getQuantityInStock() - salesDTO.getQuantity());
+	    inventoryRepository.save(product);
+
+	    Sales sale = new Sales();
+	    sale.setProductId(salesDTO.getProductId());
+	    sale.setQuantity(salesDTO.getQuantity());
+	    sale.setPrice(salesDTO.getPrice());
+	    sale.setCustomerName(salesDTO.getCustomerName());
+	    sale.setSaleDate(salesDTO.getSaleDate());
+	    return salesRepository.save(sale);
 	}
 	
 	public List<Sales> getAllSales(){

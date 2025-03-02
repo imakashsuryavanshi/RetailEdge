@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.enterprise.retailedge.model.Inventory;
+import com.enterprise.retailedge.dto.SalesDTO;
 import com.enterprise.retailedge.model.Sales;
 import com.enterprise.retailedge.service.SalesService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/sales")
@@ -29,11 +31,10 @@ public class SalesController {
 	private SalesService salesService;
 	
 	@PostMapping
-    public ResponseEntity<Sales> createSale(@RequestBody Sales sale) {
-		
-        Sales createdSale = salesService.createSale(sale);
-        return ResponseEntity.ok(createdSale);
-    }
+	public ResponseEntity<Sales> createSale(@Valid @RequestBody SalesDTO salesDTO) {
+	    Sales sale = salesService.createSale(salesDTO);
+	    return ResponseEntity.ok(sale);
+	}
 
     @GetMapping
     public ResponseEntity<List<Sales>> getAllSales() {

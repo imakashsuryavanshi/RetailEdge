@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.enterprise.retailedge.dto.InventoryDTO;
 import com.enterprise.retailedge.model.Inventory;
 import com.enterprise.retailedge.service.InventoryService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -27,8 +30,8 @@ public class InventoryController {
 	private InventoryService inventoryService;
 	
 	@PostMapping
-    public ResponseEntity<Inventory> addProduct(@RequestBody Inventory product) {
-        Inventory addedProduct = inventoryService.addProduct(product);
+    public ResponseEntity<Inventory> addProduct(@Valid @RequestBody InventoryDTO inventoryDTO) {
+        Inventory addedProduct = inventoryService.addProduct(inventoryDTO);
         return ResponseEntity.ok(addedProduct);
     }
 

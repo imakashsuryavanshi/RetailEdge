@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 @Entity
@@ -22,17 +24,21 @@ public class Inventory {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID productId;
 	
-	@Column(nullable = false)
-	private String productName;
-	
-	@Column(nullable = false)
-	private int quantityInStock; //Quantity of the product in stock
-	
-	@Column(nullable = false)
-	private String category; //Category of the product
-	
-	@Column(nullable = false)
-	private String supplier; //Supplier of the product
+	@NotBlank(message = "Product name is required")
+    @Column(nullable = false)
+    private String productName;
+
+    @PositiveOrZero(message = "Quantity must be a positive number or zero")
+    @Column(nullable = false)
+    private int quantityInStock;
+
+    @NotBlank(message = "Category is required")
+    @Column(nullable = false)
+    private String category;
+
+    @NotBlank(message = "Supplier is required")
+    @Column(nullable = false)
+    private String supplier;
 	
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;

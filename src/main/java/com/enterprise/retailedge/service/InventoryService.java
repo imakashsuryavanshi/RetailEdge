@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.enterprise.retailedge.dto.InventoryDTO;
 import com.enterprise.retailedge.model.Inventory;
 import com.enterprise.retailedge.repository.InventoryRepository;
 
@@ -16,8 +17,13 @@ public class InventoryService {
 	@Autowired
 	private InventoryRepository inventoryRepository;
 	
-	public Inventory addProduct(Inventory product) {
-		return inventoryRepository.save(product);
+	public Inventory addProduct(InventoryDTO inventoryDTO) {
+		Inventory product = new Inventory();
+	    product.setProductName(inventoryDTO.getProductName());
+	    product.setQuantityInStock(inventoryDTO.getQuantityInStock());
+	    product.setCategory(inventoryDTO.getCategory());
+	    product.setSupplier(inventoryDTO.getSupplier());
+	    return inventoryRepository.save(product);
 	}
 	
 	public List<Inventory> getAllProducts(){
@@ -46,15 +52,3 @@ public class InventoryService {
         inventoryRepository.deleteById(productId);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
